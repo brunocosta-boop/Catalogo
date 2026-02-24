@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Catálogo Interativo</title>
+    <style>
+        :root { --whatsapp: #25d366; --dark: #1a1a1a; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; background: #000; }
+
+        /* Barra de Controle Superior */
+        #painel-vendas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            z-index: 9999; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; box-sizing: border-box; border-bottom: 1px solid #ddd;
+        }
+
+        #info-produto { font-size: 13px; font-weight: 800; color: var(--dark); line-height: 1.2; max-width: 60%; }
+
+        .btn-add {
+            background: var(--dark); color: white; border: none; padding: 10px 15px;
+            border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;
+        }
+
+        /* Botão Flutuante WhatsApp */
+        #btn-finalizar {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 9999; background: var(--whatsapp); color: white; border: none;
+            padding: 15px 30px; border-radius: 50px; font-weight: bold; font-size: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; white-space: nowrap;
+        }
+
+        /* Container do Iframe */
+        #container-book { width: 100%; height: calc(100% - 70px); margin-top: 70px; }
+        iframe { width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+
+<div id="painel-vendas">
+    <div id="info-produto">CARREGANDO PRODUTO...</div>
+    <button class="btn-add" onclick="adicionar()">+ ADICIONAR</button>
+</div>
+
+<button id="btn-finalizar" onclick="enviar()">
+    🛒 FINALIZAR PEDIDO (<span id="count">0</span>)
+</button>
+
+<div id="container-book">
+    <iframe id="flipbook" src="https://online.fliphtml5.com/knwwv/kgzt/#p=1"></iframe>
+</div>
+
+<script>
+    const iframe = document.getElementById('flipbook');
+    const display = document.getElementById('info-produto');
+    const btnCheck = document.getElementById('btn-finalizar');
+    const badge = document.getElementById('count');
+
+    let carrinho = [];
+
+    // BANCO DE DADOS (Edite os nomes aqui)
+    const catalogo = {
+        1: "ENGATE DE REBOQUE",
+        2: "CHIP DE PEDAL",
+        3: "ESTRIBO LATERAL",
+        4: "SUPORTE DE TETO"
+        // Continue até a página 49...
+    };
+
+    // SENSOR DE SINCRONIA (Monitora a URL do Iframe)
+    setInterval(() => {
+        try {
+            const url = iframe.src;
+            const match = url.match(/#p=(\d+)/);
+            const pg = match ? parseInt(match[1]) : 1;
+            const nome = catalogo[pg] || "PRODUTO DA PÁGINA " + pg;
+            display.innerText = `PÁGINA ${pg}\n${nome}`;
+        } catch(e) {}
+    }, 600);
+
+    function adicionar() {
+        const item = display.innerText.replace('\n', ' - ');
+        if (!carrinho.includes(item)) {
+            carrinho.push(item);
+            btnCheck.style.display = 'block';
+            badge.innerText = carrinho.length;
+            alert("Adicionado: " + item);
+        }
+    }
+
+    function enviar() {
+        const fone = "5511999999999"; // SUBSTITUA PELO SEU NÚMERO
+        const msg = encodeURIComponent("Olá! Gostaria de pedir:\n\n" + carrinho.join("\n"));
+        window.open(`https://wa.me/${fone}?text=${msg}`, '_blank');
+    }
+</script>
+
+</body>
+</html>
